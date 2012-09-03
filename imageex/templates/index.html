@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Identification Flower System - NYP</title>
+<link rel="stylesheet" type="text/css" href="static/css/fileuploader.css">
+<link rel="stylesheet" type="text/css" href="static/css/home.css">
+<link type="text/css" href="static/css/smoothness/jquery-ui-1.8.11.custom.css" rel="stylesheet"/>
+<script type="text/javascript" src="static/js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="static/js/jquery-ui-1.8.11.custom.min.js"></script>
+<script type="text/javascript" src="static/js/fileuploader.js"></script>
+<script type="text/javascript" src="static/js/drawer.js"></script>
+</head>
+<body>
+<div id="wrapper">
+	<div id="header"></div>
+	<div id="content">
+		<div id="canvas_space">
+			<canvas id="imageView" width="640" height="480">
+		        <p>Unfortunately, your browser does not support canvas.</p>
+		        <p>Supported browsers: <a href="http://www.opera.com">Opera</a>,
+			    <a href="http://www.mozilla.com">Firefox</a>,
+				<a href="http://www.apple.com/safari">Safari</a>, and 
+				<a href="http://www.konqueror.org">Konqueror</a>.</p>
+			</canvas>
+		</div>
+		<div style="display:none;" id="loadingDialog">
+              <p>Awaiting for the server...</p>
+        </div>
+        <div style="display:none;" id="errorDialog">
+              <h3>Error</h3>
+              <p>An error occurred on the server</p>
+              <br/>
+        </div>
+		<div id="algoselect">
+		  <div id="fileUploader">
+              <noscript>
+                <p>Please enable JavaScript to upload files.</p>
+              </noscript>
+          </div>
+		  <form id="picUploadForm" method="post" enctype="multipart/form-data">  
+             
+              Select tool: <br/>
+              <div id="toolSelector">
+	              <input type="radio" name="tool" id="rectangleTool" value="rectangle" checked="checked"/><label for="rectangleTool">Rectangle</label>
+	              <input type="radio" name="tool" id="brushTool" value="brush"/><label for="brushTool">Brush</label>
+	          </div>
+	          <br/>
+	          <div id="brushTypeSelector" style="display:none;">
+                  <input type="radio" name="brushType" id="foregroundMarker" value="foreground" checked="checked"/><label for="foregroundMarker">Foreground Marker</label>
+                  <input type="radio" name="brushType" id="backgroundMarker" value="background"/><label for="backgroundMarker">Background Marker</label>
+              </div>
+              <br/>
+              <input type="button" value="Reset" id="resetButton">
+              <br />
+              <br />
+              <br/>
+              Segmentation algo :<br />
+              <div id="algoSelector">
+				  <input type="radio" name="algo" id="kmeansAlgo" value="kmeans"/><label for="kmeansAlgo">Kmeans</label><br />
+		          <input type="radio" name="algo" id="grabcutAlgo" value="grabcut" checked="checked"/><label for="grabcutAlgo">Graph Cut</label><br />
+		          <input type="radio" name="algo" id="watershedAlgo" value="watershed"/><label for="watershedAlgo">Watershed</label><br />
+	          </div>
+	          <br/>
+	          <input type="button" value="Segmentation" id="submitSegmentation">
+	          <input type="button" value="Identify" id="submitIdentification">
+	          <br/><br/>
+	          <input type="text" value="" name="name" id="name">
+	          <input type="button" value="Learn" id="submitLearning">
+          </form>
+          <div style="display:none;" id="kmeansDialog">
+		      <h3>Kmeans Algorithm</h3>
+			  <p>The Kmeans algorithm use unsupervised learning to segment the image using color only.</p>
+			  <p>Just click Segmentation to see the result.</p>
+		  </div>
+		  <div style="display:none;" id="grabcutDialog">
+              <h3>Graph Cut Algorithm</h3>
+              <p>The Graph Cut algorithm performs segmentation using your help.</p>
+              <p>Try first to select the region where the flower is.</p>
+              <p>If you are not satisfied with the result use the brush tool to indicate precisely where the flower is.</p>
+          </div>
+          <div style="display:none;" id="watershedDialog">
+              <h3>Watershed Algorithm</h3>
+              <p>The Watershed algorithm need seeds to perform segmentation.</p>
+              <p>Use the brush tool to indicate what belong to the flower and what belong to the background.</p>
+          </div>
+          <div style="display:none;" id="resultDialog">
+              <h3>Identification result :</h3>
+              <div id="resultDialogContent"></>
+          </div>
+		</div>
+		<br/>
+        <br/>
+        <br/>
+        <div id="debug"></div>
+	</div>
+	<br/>
+</div>
+</body>
+</html>

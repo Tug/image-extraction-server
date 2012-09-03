@@ -1,0 +1,8 @@
+.DS_Store
+.pydevproject
+.project
+*.pyc
+/imageex/static/uploads
+/bin
+/include
+/lib
