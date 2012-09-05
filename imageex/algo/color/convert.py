@@ -115,7 +115,7 @@ for name in ['ciexyz31_1.txt', 'ciexyz64_1.txt', 'ciexyzjv.txt',
 
     thisdict[varnames[k]] = (wlen, xl, yl, zl)
 
-del thisdict, wlen, xl, yl, zl, afile, lines, this, line, k, msg, name
+del thisdict, wlen, xl, yl, zl, afile, lines, this, line, k, name
 del varnames, inst
 
 # XYZ white-point coordinates
