@@ -1,6 +1,7 @@
 .DS_Store
 .pydevproject
 .project
+.Python
 *.pyc
 /imageex/static/uploads
 /bin

@@ -111,11 +111,7 @@ for name in ['ciexyz31_1.txt', 'ciexyz64_1.txt', 'ciexyzjv.txt',
         try:
             zl.append(float(this[3].strip()))
         except ValueError, inst:
-            msg = inst.args[0]
-            if msg.startswith("empty string"):
-                zl.append(0.0)
-            else:
-                raise inst
+            zl.append(0.0)
 
     thisdict[varnames[k]] = (wlen, xl, yl, zl)
 
