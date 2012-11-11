@@ -6,7 +6,6 @@ virtualenv image-extraction-server
 cd image-extraction-server
 source bin/activate
 
-sudo easy_install pip
 pip install numpy
 pip install scipy
 pip install django==1.4

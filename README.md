@@ -1,16 +1,11 @@
 
-# Image Extraction and Classification
-
-This is the source code of a web application for image segmentation, feature extraction and pattern classification of objects in images.
-
-
 # Installation instructions
 
 
 ## Install OpenCV 2.4
 
 ### Unbutu > 10.04 :
-    sudo apt-get install -y python-dev python-opencv libcv2.4
+    sudo apt-get install -y python-opencv libcv2.4
 
 ### Ubuntu <= 10.04 :
 See [Install-OpenCV](https://github.com/jayrambhia/Install-OpenCV)
@@ -25,8 +20,7 @@ See [Install-OpenCV](https://github.com/jayrambhia/Install-OpenCV)
 
 ## Install Python libraries
 
-    sudo apt-get install -y python-dev build-essential libblas-dev liblapack-dev gfortran
-    sudo easy_install pip
+    sudo apt-get install -y python-pip python-dev build-essential libblas-dev liblapack-dev gfortran
     pip install numpy
     pip install scipy
     pip install django==1.4
