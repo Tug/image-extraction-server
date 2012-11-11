@@ -404,13 +404,13 @@ $(function() {
   });
   
   $("#backgroundButton").click(function(e) {
-    activeTools.brush.color = "black";
-    activeTools.brush.maskcolor = "black";
+    activeTools.brush.color = "gray";
+    activeTools.brush.maskcolor = "gray";
   });
   
   $("#foregroundButton").click(function(e) {
-    activeTools.brush.color = "gray";
-    activeTools.brush.maskcolor = "gray";
+    activeTools.brush.color = "black";
+    activeTools.brush.maskcolor = "black";
   });
   
   $("#algo").change(function(e) {
