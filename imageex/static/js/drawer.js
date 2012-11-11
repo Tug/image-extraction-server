@@ -185,27 +185,28 @@ $(function() {
     }
     
 	  
-	function drawImage() {
-	    var image = loadedImages[imageInfo.url];
-	    if(image) {
-	       contexto.drawImage(image, imageInfo.pos.x, imageInfo.pos.y);
-	    } else {
-		    image = new Image();
-		    loadedImages[imageInfo.url] = image;
-		    image.src = imageInfo.url;
-		    image.onload = function() {
-		      if(image.width == canvaso.width) {
-		          var deltaH = canvaso.height - image.height;
-		          imageInfo.pos.y = Math.floor(deltaH/2);
-		      } else {
-		          var deltaW = canvaso.width - image.width;
-                  imageInfo.pos.x = Math.floor(deltaW/2);
-		      }
-		      contexto.drawImage(image, imageInfo.pos.x, imageInfo.pos.y);
-		      imageInfo.width = image.width;
-              imageInfo.height = image.height;
-		    };
-		}
+	function drawImage(imgUrl) {
+    var image = loadedImages[imgUrl];
+    if(image) {
+       contexto.drawImage(image, imageInfo.pos.x, imageInfo.pos.y);
+    } else {
+      image = new Image();
+      loadedImages[imgUrl] = image;
+      image.src = imgUrl;
+      imageInfo.url = imgUrl;
+      image.onload = function() {
+        if(image.width == canvaso.width) {
+            var deltaH = canvaso.height - image.height;
+            imageInfo.pos.y = Math.floor(deltaH/2);
+        } else {
+            var deltaW = canvaso.width - image.width;
+                imageInfo.pos.x = Math.floor(deltaW/2);
+        }
+        contexto.drawImage(image, imageInfo.pos.x, imageInfo.pos.y);
+        imageInfo.width = image.width;
+        imageInfo.height = image.height;
+      };
+    }
 	}
     
 	// The general-purpose event handler. This function just determines the mouse 
@@ -230,124 +231,70 @@ $(function() {
 	canvaso.addEventListener('mousemove', ev_canvas, false);
 	canvaso.addEventListener('mouseup',   ev_canvas, false);
   
-    function applyMask(imageData, maskData) {
-        var imgPixels = imageData.data;
-        var maskPixels = maskData.data;
-        var width = Math.min(imageData.width, maskData.width);
-        var height = Math.min(imageData.height, maskData.height);
-        var w4 = 4 * width;
-        var h4 = 4 * height;
-        var foregroundBak = false;
-        for(var y = 0; y < h4; y+=4) {
-            var imgOffset = y * imageData.width;
-            var maskOffset = y * maskData.width;
-            for(var x = 0; x < w4; x+=4) {
-                var foreground = maskPixels[maskOffset + x] < 200;
-                if(foreground != foregroundBak) {
-                    imgPixels[imgOffset + x ] = 0;
-                    imgPixels[imgOffset + x + 1] = 0;
-                    imgPixels[imgOffset + x + 2] = 0;
-                } else if(foreground) {
-	                imgPixels[imgOffset + x + 3] = 0x50;
-	            }
-                foregroundBak = foreground;
+  function applyMask(imageData, maskData) {
+      var imgPixels = imageData.data;
+      var maskPixels = maskData.data;
+      var width = Math.min(imageData.width, maskData.width);
+      var height = Math.min(imageData.height, maskData.height);
+      var w4 = 4 * width;
+      var h4 = 4 * height;
+      var foregroundBak = false;
+      for(var y = 0; y < h4; y+=4) {
+          var imgOffset = y * imageData.width;
+          var maskOffset = y * maskData.width;
+          for(var x = 0; x < w4; x+=4) {
+              var foreground = maskPixels[maskOffset + x] < 200;
+              if(foreground != foregroundBak) {
+                  imgPixels[imgOffset + x ] = 0;
+                  imgPixels[imgOffset + x + 1] = 0;
+                  imgPixels[imgOffset + x + 2] = 0;
+              } else if(foreground) {
+                imgPixels[imgOffset + x + 3] = 0x50;
             }
-        }
-    }
-    
-    function resetCanvas() {
-        contexto.clearRect(0, 0, canvaso.width, canvaso.height); 
-        if(imageInfo.url) drawImage(imageInfo.url);
-    }
-    
-    function resetTools() {
-        for(tool_name in activeTools) {
-            var tool = activeTools[tool_name];
-            if(tool.reset) tool.reset();
-        }
-    }
+              foregroundBak = foreground;
+          }
+      }
+  }
+  
+  function resetCanvas() {
+      contexto.clearRect(0, 0, canvaso.width, canvaso.height); 
+      if(imageInfo.url) drawImage(imageInfo.url);
+  }
+  
+  function resetTools() {
+      for(tool_name in activeTools) {
+          var tool = activeTools[tool_name];
+          if(tool.reset) tool.reset();
+      }
+  }
 
-    $("#resetButton").click(function(e) {
-        $('#loadingDialog').dialog(getCanvasCenteredDialogParams(300, 100));
-        reset(function() {
-            $('#loadingDialog').dialog('close');
-        });
-    });
-    
-    function reset(callback) {
-        $.ajax({
-            type: "POST",
-            beforeSend: function(request) {
-                request.setRequestHeader("X-CSRFToken", $("#csrfmiddlewaretoken").val());
-            },
-            url: "segmentation/reset",
-            success: function() {
-               resetCanvas();
-               resetTools();
-               if(callback) callback();
-            }
-        });
-    }
+  $("#resetButton").click(function(e) {
+      loading();
+      reset(function() {
+          doneLoading();
+      });
+  });
   
-    function getCanvasCenteredDialogParams(dialogWidth, dialogHeight) {
-        var canvasOffset = $('#imageView').offset();
-        var srollLeft = $(document).scrollLeft();
-        var scrollTop = $(document).scrollTop();
-        var loadingDialogX = canvasOffset.left + canvaso.width/2 - dialogWidth/2 - srollLeft;
-        var loadingDialogY = canvasOffset.top + canvaso.height/2 - dialogHeight/2 - scrollTop;
-        return { width: dialogWidth, height: dialogHeight, position: [loadingDialogX, loadingDialogY] };
-    }
-    
-    function showErrorDialog(content) {
-        var backup = $('#errorDialog').html();
-        var params = {};
-        if(content) {
-            $('#errorDialog').append(content);
-            params = getCanvasCenteredDialogParams(800, 600);
-        } else {
-            params = getCanvasCenteredDialogParams(200, 200);
-        }
-        params.buttons = {
-            "Close": function() {
-                $('#errorDialog').html(backup);
-                $(this).dialog("close");
-            }
-        };
-        $('#errorDialog').dialog(params);
-        $('#errorDialog').scrollTop();
-    }
-    
-	var uploader = new qq.FileUploader({
-	    element: document.getElementById('fileUploader'),
-	    action: '/upload-raw',
-	    sizeLimit: 7340032, // 7MB
-	    allowedExtensions: ['jpg', 'jpeg', 'png', 'gif'],
-	    //header: {"X-CSRFToken": $("#csrfmiddlewaretoken").val() },
-	    params: {
-	       //"X-CSRFToken": $("#csrfmiddlewaretoken").val(),
-	       "canvas-size": { width: canvaso.width, height: canvaso.height}
-	    },
-	    onSubmit: function(id, fileName){
-	       $('#loadingDialog').dialog(getCanvasCenteredDialogParams(300, 100));
-	    },
-	    onComplete: function(id, fileName, response, status) {
-	       reset(function() {
-               $('#loadingDialog').dialog('close');
-           });
-	       if(status == 200 && response && response.imgUrl) {
-	           imageInfo.url = response.imgUrl;
-	       } else if(response) {
-	           showErrorDialog(response);
-	       }
-	    }
-	});
+  function reset(callback) {
+      $.ajax({
+          type: "POST",
+          beforeSend: function(request) {
+              request.setRequestHeader("X-CSRFToken", $("#csrfmiddlewaretoken").val());
+          },
+          url: "segmentation/reset",
+          success: function() {
+             resetCanvas();
+             resetTools();
+             if(callback) callback();
+          }
+      });
+  }
   
-  $("#submitSegmentation").click(function(e) {
+  $("#runSegmentation").click(function(e) {
     e.preventDefault();
     //var imgData = canvaso.toDataURL("image/png");
     if(imageInfo.url == null) return;
-    $('#loadingDialog').dialog(getCanvasCenteredDialogParams(300, 100));
-    var algo = $("input[name='algo']:checked").val();
+    var algo = $("#algo").val();
     var data = {};
     //data.img = imgData;
     data.width = canvaso.width;
@@ -367,6 +314,7 @@ $(function() {
         alert("Watershed algorithm needs your help, please mark the flower using the brush tool.");
         return;
     }
+    loading();
     $.ajax({
         type: "POST",
         //beforeSend: function(request) {
@@ -391,19 +339,19 @@ $(function() {
                var maskData = maskContext.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
                applyMask(imageData, maskData);
                contexto.putImageData(imageData, dx, dy);
-               $('#loadingDialog').dialog('close');
+               doneLoading();
 	        }
         },
         error: function(xhr, textStatus, errorThrown) {
-            $('#loadingDialog').dialog('close');
-            showErrorDialog(xhr.responseText);
+            doneLoading();
+            error(xhr.responseText);
         }
     });
   });
   
-  $("#submitIdentification").click(function(e) {
+  $("#runIdentification").click(function(e) {
     e.preventDefault();
-    $('#loadingDialog').dialog(getCanvasCenteredDialogParams(300, 100));
+    loading();
     $.ajax({
         type: "POST",
         //beforeSend: function(request) {
@@ -411,13 +359,12 @@ $(function() {
         //},
         url: "learning/predict/"+defaultClassifier,
         success: function(data) {
-            $('#loadingDialog').dialog('close');
-            $('#resultDialog').dialog(getCanvasCenteredDialogParams(300, 500));
+            doneLoading();
             $('#resultDialogContent').html(data);
         },
         error: function(xhr, textStatus, errorThrown) {
-            $('#loadingDialog').dialog('close');
-            showErrorDialog(xhr.responseText);
+            doneLoading();
+            error(xhr.responseText);
         }
     });
   });
@@ -429,7 +376,7 @@ $(function() {
         alert("Enter a name for this flower");
         return;
     }
-    $('#loadingDialog').dialog(getCanvasCenteredDialogParams(300, 100));
+    loading();
     $.ajax({
         type: "POST",
         //beforeSend: function(request) {
@@ -438,59 +385,93 @@ $(function() {
         data: { name: name },
         url: "learning/learn/"+defaultClassifier,
         success: function(data) {
-            $('#loadingDialog').dialog('close');
+            doneLoading();
             alert("Learning successful !");
         },
         error: function(xhr, textStatus, errorThrown) {
-            $('#loadingDialog').dialog('close');
-            showErrorDialog(xhr.responseText);
+            doneLoading();
+            error(xhr.responseText);
         }
     });
   });
   
-  $("input[name='tool']").click(function(e) {
-    setTool(this.value);
-    if(this.value == "brush") {
-        $( "#brushTypeSelector" ).show();
-    } else {
-        $( "#brushTypeSelector" ).hide();
-    }
+  $("#brushButton").click(function(e) {
+    setTool("brush");
   });
   
-  $("input[name='brushType']").click(function(e) {
-    if(this.value == "foreground") {
-        activeTools.brush.color = "black";
-        activeTools.brush.maskcolor = "black";
-    } else if(this.value == "background") {
-        activeTools.brush.color = "gray";
-        activeTools.brush.maskcolor = "gray";
-    }
+  $("#rectangleButton").click(function(e) {
+    setTool("rectangle");
   });
   
-  $("input[name='algo']").click(function(e) {
-    params = getCanvasCenteredDialogParams(350, 250);
-    params.buttons = {
-        "Ok": function() {
-            $(this).dialog("close"); 
-        }
-    };
-    $('#'+this.value+'Dialog').dialog(params);
+  $("#backgroundButton").click(function(e) {
+    activeTools.brush.color = "black";
+    activeTools.brush.maskcolor = "black";
   });
   
-  $( "#resetButton" ).button();
-  $( "#submitSegmentation" ).button();
-  $( "#submitIdentification" ).button();
-  $( "#submitLearning" ).button();
-  $( "#toolSelector" ).buttonset();
-  $( "#brushTypeSelector" ).buttonset();
-  $( "#algoSelector" ).buttonset();
+  $("#foregroundButton").click(function(e) {
+    activeTools.brush.color = "gray";
+    activeTools.brush.maskcolor = "gray";
+  });
+  
+  $("#algo").change(function(e) {
+    console.log($(this).val());
+    $('#'+$(this).val()+'Dialog').modal();
+  });
 
-  /* disable submiting form with enter */
-  document.onkeypress = function(evt) { 
-	  var evt = (evt) ? evt : ((event) ? event : null);
-	  var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null); 
-	  if ((evt.keyCode == 13) && (node.type=="text"))  {return false;} 
+  function loading() {
+    $("#canvas_loading").show();
   }
+
+  function doneLoading() {
+    $("#canvas_loading").hide();
+  }
+
+  function error(errMessage) {
+    $('#errorDialogContent').html(errMessage);
+    $('#errorDialog').modal();
+  }
+  
+  var uploader = new plupload.Uploader({
+		runtimes : 'gears,html5,flash,silverlight,browserplus',
+		browse_button : 'uploadButton',
+		max_file_size : '7mb',
+		url :  '/upload',
+		flash_swf_url : 'static/js/plupload/plupload.flash.swf',
+		silverlight_xap_url : 'static/js/plupload/plupload.silverlight.xap',
+		filters : [
+			{title : "Image files", extensions : "jpg,jpeg,gif,png"}
+		],
+		resize : {width : 640, height : 480, quality : 95},
+    multipart_params: {
+       "canvas-size[width]": $('#imageView').width(),
+       "canvas-size[height]": $('#imageView').height()
+    },
+	});
+
+	uploader.init();
+
+	uploader.bind('FilesAdded', function(up, files) {
+		up.refresh();
+    up.start();
+    loading();
+	});
+
+	uploader.bind('Error', function(up, err) {
+		alert("Error: "+err.code+", Message: "+err.message);
+		up.refresh(); // Reposition Flash/Silverlight
+	});
+
+	uploader.bind('FileUploaded', function(up, file, res) {
+    if(res.status == 200) {
+      var response = JSON.parse(res.response);
+      if(response.imgUrl) {
+        drawImage(response.imgUrl);
+      }
+    } else {
+      error((res.response && JSON.stringify(res.response)) || "Error "+res.status);
+    }
+    doneLoading();
+	});
   
 });
 

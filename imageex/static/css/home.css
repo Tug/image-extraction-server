@@ -1,41 +1,60 @@
-body {
-	margin: 0;
-	padding: 0;
-	font: 70% "Trebuchet MS", sans-serif;
-}
 
-#wrapper {
-	width: 860px;
-	height: 800px;
-	text-align: center;
-	margin: 0 auto;
-	border-style: solid;
-	border-color: green;
-	border-width: 0 1px 1px 1px;
-}
-#header {
-	background-image: url("/static/images/header.jpg");
-	width: 860px;
-	height: 260px;
-}
-#canvas_space {
+.canvas-space {
 	position: relative;
-	float: left;
 	width: 640px;
 	height: 480px;
 	margin-left: 10px;
 	border: 1px solid black;
 }
+
+#canvas_loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 640px;
+	height: 480px;
+  z-index:1000;
+  background-color: rgba(255,255,255,0.5);
+  display: none;
+  text-align:center;
+  vertical-align: center;
+}
+
+.vertical-centered {
+  margin: auto;
+  margin-top: 165px;
+  width: 150px;
+  height: 150px;
+}
+
+.topbar-panel {
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  width: 300px;
+  text-align: center;
+}
+
+.control-panel {
+	text-align: left;
+}
+
+.panel-group {
+  
+}
+
+.panel-item {
+  margin: 10px 0 20px 0;
+}
+
+.important-button {
+  margin: 10px 10px 18px 10px;
+}
+
 #imageTemp {
 	position: absolute;
 	top: 1px;
 	left: 1px;
-}
-#algoselect {
-	position: relative;
-	float: left;
-	width: 200px;
-	text-align: left;
 }
 
 .demoHeaders { margin-top: 2em; }

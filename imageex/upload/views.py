@@ -5,6 +5,7 @@ from imageex.util.JsonResponse import JsonResponse
 from os import path
 from forms import UploadFileForm
 from imageex.util import stringutil, fileutil, imconvert, imtransform
+from django.utils import simplejson
 import Image
 
 def upload_file(request):
@@ -16,7 +17,7 @@ def upload_file(request):
 
 def upload_file_raw(request):
     if request.method == 'POST':
-        fileData = request.raw_post_data
+        fileData = request.FILES['file']
         return saveImage(request, fileData)
     else:
         return HttpResponseBadRequest()
@@ -29,6 +30,10 @@ def saveImage(request, data):
     if 'canvas-size[width]' in request.GET.keys() and 'canvas-size[height]' in request.GET.keys():
         canvasWidth = int(request.GET['canvas-size[width]'])
         canvasHeight = int(request.GET['canvas-size[height]'])
+        imtransform.scalePILImage(imgPIL, (canvasWidth, canvasHeight))
+    if 'canvas-size[width]' in request.POST.keys() and 'canvas-size[height]' in request.POST.keys():
+        canvasWidth = int(request.POST['canvas-size[width]'])
+        canvasHeight = int(request.POST['canvas-size[height]'])
         imtransform.scalePILImage(imgPIL, (canvasWidth, canvasHeight))
     imgPIL.save(destinationFile, "JPEG")
     request.session['original_image'] = fileNameServer
